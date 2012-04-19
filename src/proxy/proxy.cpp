@@ -33,6 +33,7 @@
 #include <sstream>
 #include <net/if.h>
 #include <fstream>
+#include <cstring>
 #include <string>
 #include <iostream>
 #include <signal.h>
