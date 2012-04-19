@@ -324,13 +324,16 @@ bool mc_tables::refresh_vifs(){
                          strline >> vif_tmp.bytesOut;
                          strline >> vif_tmp.pktsOut;
                          strline >> vif_tmp.flags;
-                         if(vif_tmp.flags & VIFF_USE_IFINDEX){
+#ifdef VIFF_USE_IFINDEX
+			  if(vif_tmp.flags & VIFF_USE_IFINDEX){
                               strline >> vif_tmp.lcl_index;
-                         }else{
+                         } else
+#else
+			 {
                               strline >> str;
                               vif_tmp.lcl_addr = hexCharAddr_To_ipFormart(str,AF_INET);
                          }
-
+#endif
                          if(vif_tmp.flags & VIFF_TUNNEL){
                               strline >> str;
                               vif_tmp.remote = hexCharAddr_To_ipFormart(str,AF_INET);
@@ -419,12 +422,15 @@ void mc_tables::print_vif_info(struct mr_vif& t){
           << t.pktsOut << "\t" << t.flags << "\t";
 
      if(m_addr_family == AF_INET){
+#ifdef VIFF_USE_IFINDEX
           if(t.flags & VIFF_USE_IFINDEX){
                cout << t.lcl_index << "\t";
-          }else{
+          } else
+#else
+	  {
                cout << t.lcl_addr << "\t";
           }
-
+#endif
           if(t.flags & VIFF_TUNNEL){
                cout << t.remote;
           }else{
