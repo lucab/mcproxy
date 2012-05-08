@@ -379,22 +379,24 @@ bool mroute_socket::add_vif(int vifNum, const char* ifName, const char* ipTunnel
           //VIFF_TUNNEL   /* vif represents a tunnel end-point */
           //VIFF_SRCRT    /* tunnel uses IP src routing */
           //VIFF_REGISTER /* used for PIM Register encap/decap */
-          unsigned char flags;
+          unsigned char flags = 0;
+#ifdef VIFF_USE_IFINDEX
           flags = VIFF_USE_IFINDEX;
-
+#endif
           memset(&vc, 0, sizeof(vc));
           vc.vifc_vifi = vifNum;
           vc.vifc_flags = flags;
           vc.vifc_threshold = MROUTE_TTL_THRESHOLD;
           vc.vifc_rate_limit = MROUTE_RATE_LIMIT_ENDLESS;
+#ifdef VIFF_USE_IFINDEX
           vc.vifc_lcl_ifindex =index;
-
+#endif
           if(ipTunnelRemoteAddr != NULL){
                if(!inet_pton(AF_INET, ipTunnelRemoteAddr, (void*)&vc.vifc_rmt_addr)>0){
                     HC_LOG_ERROR("cannot convert ipTunnelRemoteAddr: " << ipTunnelRemoteAddr);
                }
           }
-
+//XXX(LucaB): this won't work as I've removed the VIFF_USE_IFINDEX flag
           rc = setsockopt(m_sock,IPPROTO_IP,MRT_ADD_VIF,(void *)&vc,sizeof(vc));
           if (rc == -1) {
                HC_LOG_ERROR("failed to add VIF! Error: " << strerror(errno) << " errno: " << errno);
